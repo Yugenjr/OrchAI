@@ -4,7 +4,8 @@ from orchai.core.models import (
     TaskRequest,
     AgentCapability,
     AgentEvent,
-    AgentResult
+    AgentResult,
+    AgentExecutionReport
 )
 
 class TaskContext(ABC):
@@ -43,3 +44,9 @@ class AgentAdapter(ABC):
     @abstractmethod
     def health_check(self) -> bool:
         pass
+
+    def supports_session_resume(self) -> bool:
+        return False
+        
+    def resume_session(self, session_id: str, context: str) -> AgentExecutionReport:
+        raise NotImplementedError

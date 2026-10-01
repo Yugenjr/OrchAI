@@ -30,3 +30,17 @@ This document defines exactly what V0.1 (MVP) will and will not implement.
 - Enterprise RBAC.
 - CI/CD integration.
 - Issue tracker integrations (Jira, Linear, GitHub).
+
+
+## Phase 5 Runtime Validation Note
+As of Phase 5, real-time tool execution interception (e.g. blocking a command before it runs) remains UNPROVEN against the live Antigravity runtime due to missing authentication credentials during test execution. Therefore, OrchAI strictly enforces a Zero-Trust black-box boundary: the agent is NOT trusted during execution, and all validation occurs via POST-EXECUTION Git observation and reconciliation.
+
+
+## Phase 6: Engineering Memory & Review Loop
+OrchAI implements persistent Engineering Memory backed by a MemoryStore inside .orchai/memory/. 
+Memory entries capture architecture decisions, constraints, and developer feedback with distinct MemoryProvenance. 
+Agent-originated memories remain untrusted CANDIDATE memory until verified by human review. 
+Memory conflicts (e.g. conflicting db decisions) enter a CONFLICT state for developer resolution.
+
+The Review Loop introduces the AWAITING_REVIEW and CHANGES_REQUESTED states, decoupled from pre-execution approval. 
+Tasks now track execution iterations via an Attempt History, preserving previous AgentResult, VerificationResult, and developer feedback.

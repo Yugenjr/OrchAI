@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  orchai:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile
+    image: orchai-runtime:latest
+    user: orchai
+    volumes:
+      # Mount the explicit workspace
+      - ../../workspace:/app/workspace
+      # Mount orchai state securely
+      - ../../.orchai:/app/.orchai
+    environment:
+      - ORCHAI_ENV=production
+    # Explicitly disable unnecessary privileges
+    privileged: false
+    network_mode: "none" # Safe default for isolated tasks
+    # Set explicit resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M

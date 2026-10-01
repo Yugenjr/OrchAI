@@ -12,14 +12,17 @@ class TaskRepository:
             raise ValueError(f"Task {task.id} already exists.")
         self._write(task)
         
-    def get(self, task_id: str) -> Optional[Task]:
+    def get(self, task_id: str, tenant_id: Optional[str] = None) -> Optional[Task]:
         file_path = self.tasks_dir / f"{task_id}.json"
         if not file_path.exists():
             return None
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return Task(**data)
+                task = Task(**data)
+                if tenant_id and getattr(task, "tenant_id", None) and getattr(task, "tenant_id", None) != tenant_id:
+                    return None
+                return task
         except Exception:
             return None
             
@@ -28,7 +31,7 @@ class TaskRepository:
             raise ValueError(f"Task {task.id} does not exist.")
         self._write(task)
         
-    def list(self) -> List[Task]:
+    def list(self, tenant_id: Optional[str] = None) -> List[Task]:
         tasks = []
         if not self.tasks_dir.exists():
             return tasks
@@ -36,7 +39,9 @@ class TaskRepository:
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    tasks.append(Task(**data))
+                    task = Task(**data)
+                    if tenant_id is None or getattr(task, "tenant_id", None) == tenant_id:
+                        tasks.append(task)
             except Exception:
                 pass
         return tasks

@@ -1,2 +1,0 @@
-[console_scripts]
-orchai = orchai.cli.main:app

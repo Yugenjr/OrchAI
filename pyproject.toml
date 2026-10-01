@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orchai"
+version = "0.1.0"
+description = "The orchestration layer for AI coding agents."
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0.0",
+    "typer>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[project.scripts]
+orchai = "orchai.cli.main:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,17 @@
+{
+  "project_name": "OrchAI",
+  "project_root": "C:\\Users\\Yugendra\\Downloads\\OrchAI",
+  "version": "0.1.0",
+  "created_at": "2026-10-01T16:03:19.725791",
+  "policy": {
+    "allowed_paths": [
+      "src/**",
+      "tests/**"
+    ],
+    "forbidden_paths": [
+      ".env",
+      ".git/**"
+    ],
+    "approval_required_paths": []
+  }
+}

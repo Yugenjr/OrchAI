@@ -1,60 +1,38 @@
 # OrchAI Agent Protocol
 
-This document defines the expected interface and communication protocol between OrchAI and external coding agents.
+## 1. Conceptual Agent Adapter Contract
 
-## 1. Concept
+The `AgentAdapter` handles communication between OrchAI and external agents. It does NOT assume interception is possible natively.
 
-OrchAI acts as the orchestrator, and coding agents act as executors. To avoid manual parsing of arbitrary text, agents are expected to communicate back to OrchAI using structured reports.
-
-## 2. The Input: Compiled Prompt
-
-OrchAI sends a compiled, structured JSON prompt to the agent (either directly via API or via system prompt configuration).
-
-```json
-{
-  "task_id": "tsk_12345",
-  "objective": "Implement JWT authentication",
-  "allowed_paths": ["src/auth/**", "tests/auth/**"],
-  "forbidden_paths": ["src/frontend/**", ".env"],
-  "context": {
-    "files": ["src/models/user.py"],
-    "memory": ["Do not use Redis."]
-  },
-  "validation_requirements": ["pytest tests/auth"]
-}
+```python
+class AgentAdapter:
+    def initialize(self)
+    def capabilities(self) -> List[AgentCapability]
+    def prepare_task(self, request: TaskRequest, context: TaskContext)
+    def execute(self) -> AgentResult
+    def stream_events(self) -> Iterator[AgentEvent]
+    def collect_result(self) -> AgentResult
+    def cancel(self)
+    def health_check(self)
 ```
 
-## 3. The Output: Structured Execution Report
+## 2. Conceptual Pydantic Models
+- `TaskRequest`
+- `TaskContext`
+- `AgentCapability`
+- `AgentAction`
+- `AgentEvent`
+- `AgentResult`
+- `VerificationResult`
+- `PolicyDecision`
 
-When the agent finishes its execution, it MUST output a structured report in a parseable format (e.g., JSON inside a specific markdown block).
+## 3. Event Model
 
-```json
-{
-  "task_id": "tsk_12345",
-  "status": "COMPLETED",
-  "metrics": {
-    "files_read": 3,
-    "files_modified": 2,
-    "files_created": 1,
-    "files_deleted": 0,
-    "commands_executed": 2
-  },
-  "actions": [
-    {
-      "type": "modify",
-      "path": "src/auth/jwt.py"
-    },
-    {
-      "type": "run_command",
-      "command": "pytest tests/auth",
-      "result": "success"
-    }
-  ],
-  "deviations": [],
-  "next_suggested_action": null
-}
-```
+Events represent agent activity. OrchAI classifies them based on observability and security:
+- `TASK_STARTED`, `TASK_COMPLETED`, `TASK_FAILED`: Observable.
+- `FILE_READ`, `FILE_CREATED`, `FILE_MODIFIED`, `FILE_DELETED`: Observable (Post-execution via Git).
+- `COMMAND_REQUESTED`, `COMMAND_STARTED`, `COMMAND_COMPLETED`: Interceptable (INTEGRATION-DEPENDENT).
+- `DEPENDENCY_CHANGED`, `TEST_STARTED`, `TEST_COMPLETED`: Interceptable (INTEGRATION-DEPENDENT).
+- `AGENT_MESSAGE`, `AGENT_ERROR`: Observable.
 
-## 4. Adapter Responsibility
-
-The `AgentAdapter` in OrchAI is responsible for translating OrchAI's internal state into the agent's expected input format, and parsing the agent's output back into OrchAI's structured state. If an agent fails to provide a structured report, the adapter must fallback to Git diff analysis to reconstruct the execution report.
+*Note on Interception:* OrchAI never claims interception (e.g., blocking a `COMMAND_STARTED` event mid-flight) unless the underlying integration explicitly guarantees it.

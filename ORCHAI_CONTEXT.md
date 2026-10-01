@@ -4,54 +4,26 @@
 **Tagline:** "The orchestration layer for AI coding agents."
 **Core Principle:** "Agents execute. OrchAI orchestrates. Humans authorize."
 
-OrchAI is a repository-aware, policy-aware, context-aware orchestration and governance layer for AI coding agents. It is NOT another coding agent, but a control plane that coordinates agents to perform software-engineering tasks.
+OrchAI is a repository-aware, policy-aware, context-aware orchestration and governance layer for AI coding agents.
 
-## Core Problem
-The current workflow involving AI systems involves manual copy-pasting, context loss, high token consumption, lack of execution governance, independent verification, and persistent memory.
+## Architectural Separation of Concerns
+OrchAI explicitly separates capabilities into four distinct phases. It does NOT assume it can intercept arbitrary internal operations of coding agents like Antigravity. 
 
-## Core Vision
-OrchAI provides a continuous pipeline:
-Human Intent → Project Understanding → Task Planning → Context Selection → Prompt Compilation → Policy Validation → Agent Execution → Action Monitoring → Code Verification → Human Approval → Git / CI → Engineering Memory
+1. **PRE-EXECUTION GOVERNANCE:** Planning, context preparation, intent compilation, policy validation, and establishing the Expected Change Scope.
+2. **EXECUTION / INTERCEPTION:** The actual running of the agent. Interception (e.g., stopping a tool mid-flight) is strictly INTEGRATION-DEPENDENT.
+3. **POST-EXECUTION OBSERVATION:** Examining Git status, file system changes, and determining the Actual Change Scope.
+4. **INDEPENDENT VERIFICATION:** Running tests, linters, and verifying against the policy independent of what the agent reported.
 
-## Key Features
-1. **Persistent Project Context Engine:** Retrieves task-specific context instead of sending the entire repository.
-2. **Bidirectional Agent Communication:** Consumes structured execution reports from agents to update project state.
-3. **Prompt Compiler:** Transforms natural language requests into structured implementation tasks with constraints and validation requirements.
-4. **Context and Token Optimization:** Minimizes context via compression, selection, and caching.
-5. **Codebase Governance:** Policy engine to control agent permissions (allowed/forbidden paths, required approvals).
-6. **Intent vs Actual Change Analysis:** Detects deviations between expected and actual change surfaces.
-7. **Agent Action Monitoring:** Observes and logs agent execution traces.
-8. **Independent Verification Engine:** Independently verifies results via git diff, linting, testing, etc.
-9. **Risk-Based Human-in-the-Loop:** Requires human approval for high-risk operations based on policy.
-10. **Agent Cost and Resource Controller:** Configurable limits for tokens, tool calls, retries, time, etc.
-11. **Checkpoints, Recovery and Rollback:** Uses Git for pre-execution checkpoints and recovery.
-12. **Task State Machine:** Explicit lifecycle states for tasks.
-13. **Multi-Agent Orchestration (Future):** Supports specialized agents (Planner, Coder, Reviewer, etc.).
-14. **Agent-Agnostic Adapter Layer:** Core engine abstracts agent-specific details.
-15. **Engineering Memory:** Remembers project-level decisions and constraints.
-16. **Explainability:** Provides reasoning for agent actions and file modifications.
-17. **Agent Execution Analytics:** Exposes metrics on agent performance and behavior.
-18. **Execution Learning:** Uses past results to improve future tasks.
+## Core Capabilities Classification
+- **Pre-execution Policy Checks:** AVAILABLE
+- **Git Diff Observation:** AVAILABLE
+- **Post-execution Verification:** AVAILABLE
+- **Agent Output Parsing:** AVAILABLE
+- **Arbitrary Internal Tool Interception (Antigravity):** UNKNOWN / INTEGRATION-DEPENDENT
+- **Real-time Event Streaming:** INTEGRATION-DEPENDENT
+- **Multi-agent Hand-offs:** FUTURE
 
-## MVP Scope
-- Local CLI
-- Project context
-- Task management
-- Prompt compilation
-- Antigravity integration/adapter
-- Git diff inspection
-- Basic policy engine
-- Human approval gate
-- Verification
-- Execution report
-- Task state tracking
-- Basic rollback
-
-## Architectural Principles
-- Agent-agnostic core
-- Local-first development
-- Security by default
-- Human control for high-risk operations
-- Least-privilege agent execution
-- Observable execution and independent verification
-- Minimal context transfer and dependencies
+## Expected vs Actual Change Scope
+- **Expected Change Scope:** Established BEFORE execution based on the task intent and policy (e.g., `src/auth/**`).
+- **Actual Change Scope:** Determined AFTER execution through Git observation.
+OrchAI detects deviations between these scopes and triggers human approval or rollbacks.
